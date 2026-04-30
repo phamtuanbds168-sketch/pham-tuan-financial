@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { ShieldCheck, Diamond, Globe, Fingerprint, Moon, Sun, ChevronRight, LogOut, Layers } from 'lucide-react';
+import { ShieldCheck, Diamond, Globe, Fingerprint, Moon, Sun, ChevronRight, LogOut, Layers, Eye, EyeOff, DatabaseBackup } from 'lucide-react';
 import { User } from 'firebase/auth';
 import { cn } from '../lib/utils';
 
@@ -23,6 +23,14 @@ export const SettingsScreen = ({
   const [deepseekInput, setDeepseekInput] = useState(deepseekKey);
   const [showKey, setShowKey] = useState(false);
 
+  const handleSaveKeys = () => {
+    onUpdateGeminiKey(geminiInput);
+    onUpdateDeepseekKey(deepseekInput);
+    localStorage.setItem('gemini_api_key', geminiInput);
+    localStorage.setItem('deepseek_api_key', deepseekInput);
+    localStorage.setItem('ai_provider', aiProvider);
+  };
+
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 pb-24">
       <section className="bg-white border border-gold-100/20 rounded-3xl p-8 shadow-sm flex flex-col items-center text-center">
@@ -41,9 +49,112 @@ export const SettingsScreen = ({
         <button onClick={onEditAccount} className="px-6 py-2 border border-gold-200 text-gold-600 rounded-full text-[10px] font-bold uppercase tracking-widest">Chỉnh sửa tài khoản</button>
       </section>
 
-      {/* AI Config Section (Sử dụng code cũ đã có) */}
+      {/* AI Config Section */}
+      <section className="bg-white border border-gold-100/20 rounded-3xl p-6 shadow-sm">
+        <h3 className="font-bold text-lg text-stone-900 mb-4 flex items-center gap-2">
+          <Layers className="w-5 h-5 text-gold-600" /> Cấu hình Trí tuệ Nhân tạo
+        </h3>
+        
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium">Nhà cung cấp AI</span>
+            <div className="flex items-center bg-stone-50 rounded-full p-1">
+              <button 
+                onClick={() => onUpdateProvider('gemini')}
+                className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-tight ${aiProvider === 'gemini' ? 'bg-gold-500 text-white' : 'text-stone-500'}`}
+              >
+                Gemini
+              </button>
+              <button 
+                onClick={() => onUpdateProvider('deepseek')}
+                className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-tight ${aiProvider === 'deepseek' ? 'bg-gold-500 text-white' : 'text-stone-500'}`}
+              >
+                DeepSeek
+              </button>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-stone-500 block">Gemini API Key</label>
+            <div className="relative">
+              <input
+                type={showKey ? "text" : "password"}
+                value={geminiInput}
+                onChange={(e) => setGeminiInput(e.target.value)}
+                className="w-full h-10 bg-stone-50 rounded-xl px-4 text-xs font-mono"
+                placeholder="Nhập API key của bạn..."
+              />
+              <button
+                type="button"
+                onClick={() => setShowKey(!showKey)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-stone-500"
+              >
+                {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-stone-500 block">DeepSeek API Key</label>
+            <div className="relative">
+              <input
+                type={showKey ? "text" : "password"}
+                value={deepseekInput}
+                onChange={(e) => setDeepseekInput(e.target.value)}
+                className="w-full h-10 bg-stone-50 rounded-xl px-4 text-xs font-mono"
+                placeholder="Nhập API key của bạn..."
+              />
+              <button
+                type="button"
+                onClick={() => setShowKey(!showKey)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-stone-500"
+              >
+                {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
+          
+          <button 
+            onClick={handleSaveKeys}
+            className="w-full h-12 rounded-2xl metallic-gold font-bold text-xs uppercase tracking-widest"
+          >
+            Lưu thiết lập
+          </button>
+        </div>
+      </section>
+
+      {/* Data Backup Section */}
+      <section className="bg-white border border-gold-100/20 rounded-3xl p-6 shadow-sm">
+        <h3 className="font-bold text-lg text-stone-900 mb-4 flex items-center gap-2">
+          <DatabaseBackup className="w-5 h-5 text-gold-600" /> Sao lưu dữ liệu
+        </h3>
+        <p className="text-sm text-stone-600 mb-4">
+          Quản lý sao lưu và khôi phục dữ liệu tài chính của bạn
+        </p>
+        <button 
+          onClick={() => {
+            // Navigate to backup screen
+            window.location.hash = '#backup';
+          }}
+          className="w-full h-12 rounded-2xl metallic-gold font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+        >
+          <DatabaseBackup size={16} />
+          Quản lý dữ liệu
+        </button>
+      </section>
       
-      <button onClick={onLogout} className="w-full inline-flex items-center justify-center gap-2 px-8 py-3 border border-red-200 text-red-500 rounded-full font-bold text-xs uppercase tracking-widest mt-4">
+      {/* Security Notice */}
+      <section className="bg-red-50 border border-red-200 rounded-3xl p-6 shadow-sm">
+        <h3 className="font-bold text-lg text-red-800 mb-2">Lưu ý bảo mật</h3>
+        <p className="text-xs text-red-600">
+          API Keys được lưu trữ cục bộ trên thiết bị của bạn. Không chia sẻ khóa này với bất kỳ ai.
+        </p>
+      </section>
+
+      <button 
+        onClick={onLogout}
+        className="w-full h-14 bg-stone-900 text-white rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+      >
         <LogOut size={16} /> Đăng xuất
       </button>
     </motion.div>

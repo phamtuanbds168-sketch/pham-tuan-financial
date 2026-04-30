@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { Banknote, Check, TrendingDown, Edit3, Trash2, Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Check, TrendingDown, Trash2, Loader2 } from 'lucide-react';
 import { Debt } from '../types';
 import { cn } from '../lib/utils';
 
@@ -11,15 +11,8 @@ interface Props {
   onUpdate: (d: Debt) => void;
 }
 
-const formatCurrencyInput = (value: string) => {
-  const numericValue = value.replace(/\D/g, "");
-  if (!numericValue) return "";
-  return Number(numericValue).toLocaleString('en-US');
-};
-
 export const DebtScreen = ({ debts, onAdd, onDelete, onUpdate }: Props) => {
   const [formData, setFormData] = useState({ name: '', amount: '', type: 'Khoản vay', dueDate: new Date().toISOString().split('T')[0], interestRate: '' });
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -27,37 +20,34 @@ export const DebtScreen = ({ debts, onAdd, onDelete, onUpdate }: Props) => {
     if (!formData.name || !formData.amount || isSubmitting) return;
     setIsSubmitting(true);
     try {
-      if (editingId) {
-        await onUpdate({ id: editingId, name: formData.name, amount: Number(formData.amount), type: formData.type as any, dueDate: formData.dueDate, interestRate: Number(formData.interestRate), status: 'pending' });
-        setEditingId(null);
-      } else {
-        await onAdd({ name: formData.name, amount: Number(formData.amount), type: formData.type as any, dueDate: formData.dueDate, interestRate: Number(formData.interestRate), status: 'pending' });
-      }
+      await onAdd({
+        name: formData.name,
+        amount: Number(formData.amount),
+        type: formData.type as any,
+        dueDate: formData.dueDate,
+        interestRate: Number(formData.interestRate),
+        status: 'pending'
+      });
       setFormData({ name: '', amount: '', type: 'Khoản vay', dueDate: new Date().toISOString().split('T')[0], interestRate: '' });
     } finally { setIsSubmitting(false); }
   };
 
   return (
-    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-6 pb-24">
-      <section>
-        <h2 className="font-serif text-2xl font-bold text-red-600 mb-1">Quản lý Công nợ</h2>
-        <p className="text-stone-500 text-xs">Kiểm soát các nghĩa vụ tài chính của quý khách.</p>
-      </section>
-
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-6 pb-24">
+      <h2 className="font-serif text-2xl font-bold text-red-600 mb-1">Quản lý Công nợ</h2>
       <section className="bg-white p-6 rounded-3xl border border-red-100/30 shadow-sm">
         <form onSubmit={handleSubmit} className="space-y-4">
           <input value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full h-12 bg-stone-50 rounded-xl px-4 text-xs" placeholder="Tên khoản nợ" />
           <div className="grid grid-cols-2 gap-2">
-            <input type="text" value={formatCurrencyInput(formData.amount)} onChange={e => setFormData({ ...formData, amount: e.target.value.replace(/\D/g, "") })} className="h-12 bg-stone-50 rounded-xl px-4 text-sm font-serif font-bold text-red-600" placeholder="Số tiền" />
+            <input type="number" value={formData.amount} onChange={e => setFormData({ ...formData, amount: e.target.value })} className="h-12 bg-stone-50 rounded-xl px-4 text-sm font-serif font-bold text-red-600" placeholder="Số tiền" />
             <input type="number" value={formData.interestRate} onChange={e => setFormData({ ...formData, interestRate: e.target.value })} className="h-12 bg-stone-50 rounded-xl px-4 text-sm" placeholder="Lãi suất %" />
           </div>
           <input type="date" value={formData.dueDate} onChange={e => setFormData({ ...formData, dueDate: e.target.value })} className="w-full h-12 bg-stone-50 rounded-xl px-4 text-sm" />
           <button type="submit" disabled={isSubmitting} className="w-full h-14 rounded-2xl bg-red-600 text-white font-bold text-xs uppercase tracking-widest">
-            {isSubmitting ? <Loader2 className="animate-spin mx-auto" /> : (editingId ? 'Cập nhật' : 'Lưu khoản nợ')}
+            {isSubmitting ? <Loader2 className="animate-spin mx-auto" /> : 'Lưu khoản nợ'}
           </button>
         </form>
       </section>
-
       <div className="space-y-4">
         {debts.map(debt => (
           <div key={debt.id} className={cn("flex justify-between items-center p-4 rounded-2xl border bg-white shadow-sm", debt.status === 'paid' && "opacity-60")}>
@@ -71,11 +61,8 @@ export const DebtScreen = ({ debts, onAdd, onDelete, onUpdate }: Props) => {
               </div>
             </div>
             <div className="text-right">
-              <p className={cn("font-serif font-bold text-xs", debt.status === 'paid' ? "line-through text-stone-400" : "text-red-600")}>-{debt.amount.toLocaleString()}</p>
-              <div className="flex justify-end gap-2 mt-1">
-                <button onClick={() => { setFormData({ name: debt.name, amount: debt.amount.toString(), type: debt.type, dueDate: debt.dueDate, interestRate: debt.interestRate.toString() }); setEditingId(debt.id); window.scrollTo(0,0); }} className="text-stone-300"><Edit3 size={14} /></button>
-                <button onClick={() => onDelete(debt.id)} className="text-stone-300"><Trash2 size={14} /></button>
-              </div>
+              <p className={cn("font-serif font-bold text-xs", debt.status === 'paid' ? "line-through text-stone-400" : "text-red-600")}>-{(Number(debt.amount) || 0).toLocaleString()}</p>
+              <button onClick={() => onDelete(debt.id)} className="text-stone-300 ml-2"><Trash2 size={14} /></button>
             </div>
           </div>
         ))}

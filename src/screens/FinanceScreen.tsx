@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { motion } from 'motion/react';
-import { Plus, TrendingUp, TrendingDown, Edit3, Trash2 } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Trash2 } from 'lucide-react';
 import { Transaction } from '../types';
 import { cn } from '../lib/utils';
 
@@ -11,7 +11,7 @@ interface Props {
   onUpdate: (tx: any) => void;
 }
 
-export const FinanceScreen = ({ transactions, onAdd, onDelete, onUpdate }: Props) => {
+export const FinanceScreen = ({ transactions, onAdd, onDelete }: Props) => {
   const [formData, setFormData] = useState({ name: '', amount: '', type: 'expense', date: new Date().toISOString().split('T')[0] });
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -34,8 +34,8 @@ export const FinanceScreen = ({ transactions, onAdd, onDelete, onUpdate }: Props
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex gap-2">
             {['income', 'expense'].map(t => (
-              <button key={t} type="button" onClick={() => setFormData({...formData, type: t as any})}
-                className={cn("flex-1 py-2 rounded-xl text-[10px] font-bold uppercase", formData.type === t ? "bg-premium-black text-white" : "bg-white text-stone-400 border border-stone-100")}>
+              <button key={t} type="button" onClick={() => setFormData({...formData, type: t as any})} 
+                className={cn("flex-1 py-2 rounded-xl text-[10px] font-bold uppercase", formData.type === t ? "bg-premium-black text-white" : "bg-white text-stone-400")}>
                 {t === 'income' ? 'Thu nhập' : 'Chi tiêu'}
               </button>
             ))}
@@ -53,7 +53,7 @@ export const FinanceScreen = ({ transactions, onAdd, onDelete, onUpdate }: Props
               <p className="text-[10px] text-stone-400">{tx.date}</p>
             </div>
             <div className="flex items-center gap-3">
-              <span className={cn("font-serif font-bold text-xs", tx.amount > 0 ? "text-gold-600" : "text-red-500")}>{tx.amount.toLocaleString()}</span>
+              <span className={cn("font-serif font-bold text-xs", (Number(tx.amount)||0) > 0 ? "text-gold-600" : "text-red-500")}>{(Number(tx.amount)||0).toLocaleString()}</span>
               <button onClick={() => onDelete(tx.id)} className="text-stone-300"><Trash2 size={16}/></button>
             </div>
           </div>

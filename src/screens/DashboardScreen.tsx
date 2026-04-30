@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'motion/react';
+import { motion } from 'framer-motion';
 import { Wallet, TrendingUp, Banknote, Plus } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import { Transaction, Asset, Debt } from '../types';
@@ -13,11 +13,11 @@ interface Props {
 }
 
 export const DashboardScreen = ({ transactions, assets, debts, onAdd }: Props) => {
-  const totalAssetsValue = assets.reduce((acc, curr) => acc + curr.value, 0);
+  const totalAssetsValue = assets.reduce((acc, curr) => acc + (Number(curr.value) || 0), 0);
   const totalDebtsValue = debts
     .filter(d => d.status !== 'paid')
-    .reduce((acc, curr) => acc + curr.amount, 0);
-  const netTransactionBalance = transactions.reduce((acc, curr) => acc + curr.amount, 0);
+    .reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
+  const netTransactionBalance = transactions.reduce((acc, curr) => acc + (Number(curr.amount) || 0), 0);
   const totalBalance = totalAssetsValue - totalDebtsValue + netTransactionBalance;
 
   const categoryTotals = transactions.reduce((acc, tx) => {
@@ -26,10 +26,10 @@ export const DashboardScreen = ({ transactions, assets, debts, onAdd }: Props) =
     return acc;
   }, {} as Record<string, number>);
 
-  const totalSpent = Object.values(categoryTotals).reduce((a, b) => a + b, 0);
+  const totalSpent = Object.values(categoryTotals).reduce((a: number, b: number) => a + b, 0);
   const allocationData = Object.entries(categoryTotals).map(([name, value], index) => ({
     name,
-    value: totalSpent > 0 ? Math.round((value / totalSpent) * 100) : 0,
+    value: totalSpent > 0 ? Math.round((value as number) / totalSpent * 100) : 0,
     color: ['#D4AF37', '#9CA3AF', '#78350F', '#F59E0B', '#111827'][index % 5]
   })).slice(0, 3);
 

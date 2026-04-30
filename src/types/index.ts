@@ -1,6 +1,6 @@
 import { User } from 'firebase/auth';
 
-export type Tab = 'dashboard' | 'finance' | 'analysis' | 'notes' | 'assets' | 'debts' | 'ai' | 'settings' | 'account';
+export type Tab = 'dashboard' | 'finance' | 'notes' | 'assets' | 'debts' | 'ai' | 'settings' | 'account' | 'backup';
 
 export interface Transaction {
   id: string;
@@ -9,7 +9,6 @@ export interface Transaction {
   amount: number;
   date: string;
   type: 'income' | 'expense' | 'debt';
-  icon?: React.ReactNode;
 }
 
 export interface Note {
@@ -17,8 +16,7 @@ export interface Note {
   title: string;
   content: string;
   date: string;
-  tag: string;
-  tagColor: string;
+  userId: string;
 }
 
 export interface Asset {
