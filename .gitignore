@@ -38,3 +38,7 @@ capacitor.config.local.json
 # Temporary files
 *.tmp
 *.temp
+
+# Ignore firebase configs that might contain sensitive data
+firebase-applet-config.json
+firebase-blueprint.json
