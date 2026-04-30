@@ -1,0 +1,78 @@
+{
+  "entities": {
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Financial transaction record",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Transaction name" },
+        "category": { "type": "string", "description": "Transaction category" },
+        "amount": { "type": "number", "description": "Transaction amount" },
+        "date": { "type": "string", "format": "date", "description": "Transaction date" },
+        "type": { "type": "string", "enum": ["income", "expense", "debt"], "description": "Transaction type" },
+        "userId": { "type": "string", "description": "Owner UID" }
+      },
+      "required": ["name", "category", "amount", "date", "type", "userId"]
+    },
+    "Note": {
+      "title": "Note",
+      "description": "Financial strategy note",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Note title" },
+        "content": { "type": "string", "description": "Note content" },
+        "date": { "type": "string", "description": "Note date string" },
+        "tag": { "type": "string", "description": "Note tag" },
+        "tagColor": { "type": "string", "description": "Note tag color class" },
+        "userId": { "type": "string", "description": "Owner UID" }
+      },
+      "required": ["title", "content", "date", "tag", "tagColor", "userId"]
+    },
+    "Asset": {
+      "title": "Asset",
+      "description": "User owned asset (Real estate, Car, Watch, Stock, etc.)",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Asset name" },
+        "value": { "type": "number", "description": "Estimated value in VND" },
+        "type": { "type": "string", "enum": ["Bất động sản", "Chứng khoán", "Siêu xe", "Đồng hồ", "Khác"], "description": "Asset category" },
+        "purchaseDate": { "type": "string", "description": "Purchase date string" },
+        "userId": { "type": "string", "description": "Owner UID" }
+      },
+      "required": ["name", "value", "type", "purchaseDate", "userId"]
+    },
+    "Debt": {
+      "title": "Debt",
+      "description": "Financial debt record",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Debt name" },
+        "amount": { "type": "number", "description": "Lent/Borrowed amount" },
+        "dueDate": { "type": "string", "format": "date", "description": "Due date" },
+        "interestRate": { "type": "number", "description": "Annual interest rate" },
+        "status": { "type": "string", "enum": ["pending", "paid", "overdue"], "description": "Debt status" },
+        "type": { "type": "string", "enum": ["Khoản vay", "Thẻ tín dụng", "Trả góp", "Khác"], "description": "Debt category" },
+        "userId": { "type": "string", "description": "Owner UID" }
+      },
+      "required": ["name", "amount", "dueDate", "interestRate", "status", "type", "userId"]
+    }
+  },
+  "firestore": {
+    "transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "User financial transactions"
+    },
+    "notes/{noteId}": {
+      "schema": "Note",
+      "description": "User notes and evaluations"
+    },
+    "assets/{assetId}": {
+      "schema": "Asset",
+      "description": "User owned assets"
+    },
+    "debts/{debtId}": {
+      "schema": "Debt",
+      "description": "User financial debts"
+    }
+  }
+}

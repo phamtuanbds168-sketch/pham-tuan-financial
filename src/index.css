@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Noto Serif", ui-serif, Georgia, serif;
+  
+  --color-gold-50: #fbf8f1;
+  --color-gold-100: #f4ecd9;
+  --color-gold-200: #e9d9b3;
+  --color-gold-300: #dcc282;
+  --color-gold-400: #d1a85e;
+  --color-gold-500: #c5a059;
+  --color-gold-600: #b58946;
+  --color-gold-700: #976f3a;
+  --color-gold-800: #7d5b35;
+  --color-gold-900: #674b2f;
+  
+  --color-premium-black: #1a1b1f;
+  --spacing-safe-top: env(safe-area-inset-top);
+  --spacing-safe-bottom: env(safe-area-inset-bottom);
+}
+
+@layer base {
+  body {
+    @apply bg-[#faf9fe] text-[#1a1b1f] antialiased;
+  }
+}
+
+.metallic-gold {
+  background: linear-gradient(135deg, #c5a059 0%, #ffdea5 50%, #c5a059 100%);
+}
+
+.text-gold-metallic {
+  background: linear-gradient(to right, #c5a059, #f2d091, #c5a059);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-border-glow {
+  box-shadow: 0 4px 12px rgba(197, 160, 89, 0.15);
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(197, 160, 89, 0.1);
+}
+
+.safe-top {
+  padding-top: max(1rem, env(safe-area-inset-top));
+}
+
+.safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.bottom-nav-container {
+  padding-bottom: env(safe-area-inset-bottom);
+  height: calc(4.5rem + env(safe-area-inset-bottom));
+}
+
+/* Custom chart styling */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: rgba(197, 160, 89, 0.1);
+}

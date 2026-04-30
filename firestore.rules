@@ -1,0 +1,142 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Transactions ---
+    function isValidTransaction(data) {
+      return data.keys().hasAll(['name', 'category', 'amount', 'date', 'type', 'userId'])
+        && data.keys().size() == 6
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && data.category is string && data.category.size() > 0 && data.category.size() <= 100
+        && data.amount is number
+        && data.date is string && data.date.size() >= 10 && data.date.size() <= 20
+        && data.type in ['income', 'expense', 'debt']
+        && data.userId == request.auth.uid;
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isSignedIn() 
+        && isValidId(transactionId)
+        && isValidTransaction(incoming());
+
+      allow update: if isSignedIn()
+        && isOwner(existing().userId)
+        && isValidTransaction(incoming())
+        && incoming().userId == existing().userId; // Fixed owner
+
+      allow delete: if isSignedIn()
+        && isOwner(existing().userId);
+    }
+
+    // --- Notes ---
+    function isValidNote(data) {
+      return data.keys().hasAll(['title', 'content', 'date', 'tag', 'tagColor', 'userId'])
+        && data.keys().size() == 6
+        && data.title is string && data.title.size() > 0 && data.title.size() <= 200
+        && data.content is string && data.content.size() > 0 && data.content.size() <= 5000
+        && data.date is string && data.date.size() > 0 && data.date.size() <= 50
+        && data.tag is string && data.tag.size() > 0 && data.tag.size() <= 50
+        && data.tagColor is string && data.tagColor.size() > 0 && data.tagColor.size() <= 50
+        && data.userId == request.auth.uid;
+    }
+
+    match /notes/{noteId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && isValidId(noteId)
+        && isValidNote(incoming());
+
+      allow update: if isSignedIn()
+        && isOwner(existing().userId)
+        && isValidNote(incoming())
+        && incoming().userId == existing().userId;
+
+      allow delete: if isSignedIn()
+        && isOwner(existing().userId);
+    }
+
+    // --- Assets ---
+    function isValidAsset(data) {
+      return data.keys().hasAll(['name', 'value', 'type', 'purchaseDate', 'userId'])
+        && data.keys().size() == 5
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && data.value is number
+        && data.type in ["Bất động sản", "Chứng khoán", "Siêu xe", "Đồng hồ", "Khác"]
+        && data.purchaseDate is string && data.purchaseDate.size() > 0 && data.purchaseDate.size() <= 50
+        && data.userId == request.auth.uid;
+    }
+
+    match /assets/{assetId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && isValidId(assetId)
+        && isValidAsset(incoming());
+
+      allow update: if isSignedIn()
+        && isOwner(existing().userId)
+        && isValidAsset(incoming())
+        && incoming().userId == existing().userId;
+
+      allow delete: if isSignedIn()
+        && isOwner(existing().userId);
+    }
+
+    // --- Debts ---
+    function isValidDebt(data) {
+      return data.keys().hasAll(['name', 'amount', 'dueDate', 'interestRate', 'status', 'type', 'userId'])
+        && data.keys().size() == 7
+        && data.name is string && data.name.size() > 0 && data.name.size() <= 200
+        && data.amount is number
+        && data.dueDate is string && data.dueDate.size() > 0 && data.dueDate.size() <= 100
+        && data.interestRate is number
+        && data.status in ['pending', 'paid', 'overdue']
+        && data.type in ['Khoản vay', 'Thẻ tín dụng', 'Trả góp', 'Khác']
+        && data.userId == request.auth.uid;
+    }
+
+    match /debts/{debtId} {
+      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+      allow create: if isSignedIn()
+        && isValidId(debtId)
+        && isValidDebt(incoming());
+
+      allow update: if isSignedIn()
+        && isOwner(existing().userId)
+        && isValidDebt(incoming())
+        && incoming().userId == existing().userId;
+
+      allow delete: if isSignedIn()
+        && isOwner(existing().userId);
+    }
+  }
+}
